@@ -1,0 +1,126 @@
+id: anchor-ts-provider-two-args
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: `AnchorProvider` constructor now takes 2 args instead of 3. Remove the options object."
+note: |
+  In Anchor 0.30, `new AnchorProvider(connection, wallet, {})` becomes `new AnchorProvider(connection, wallet)`.
+  The third options argument is removed.
+rule:
+  pattern: new AnchorProvider($CONN, $WALLET, {})
+fix: new AnchorProvider($CONN, $WALLET)
+
+---
+
+id: anchor-ts-program-id-arg-programId
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: `Program` constructor no longer accepts explicit programId argument."
+note: |
+  In Anchor 0.30, `new Program(idl, programId)` becomes `new Program(idl)`.
+  The program ID is now derived from the IDL.
+rule:
+  pattern: new Program($IDL, programId)
+fix: new Program($IDL)
+
+---
+
+id: anchor-ts-program-id-arg-PROGRAM_ID
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: `Program` constructor no longer accepts explicit programId argument."
+note: |
+  In Anchor 0.30, `new Program(idl, PROGRAM_ID)` becomes `new Program(idl)`.
+  Keep this rule strict to avoid false positives on other valid second arguments.
+rule:
+  pattern: new Program($IDL, PROGRAM_ID)
+fix: new Program($IDL)
+
+---
+
+id: anchor-ts-program-id-arg-programId-provider
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: `Program` constructor no longer accepts explicit programId argument."
+note: |
+  In Anchor 0.30, `new Program(idl, programId, provider)` becomes `new Program(idl, provider)`.
+  Keep this rule strict to avoid false positives on arbitrary argument forms.
+rule:
+  pattern: new Program($IDL, programId, $PROVIDER)
+fix: new Program($IDL, $PROVIDER)
+
+---
+
+id: anchor-ts-program-id-arg-PROGRAM_ID-provider
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: `Program` constructor no longer accepts explicit programId argument."
+note: |
+  In Anchor 0.30, `new Program(idl, PROGRAM_ID, provider)` becomes `new Program(idl, provider)`.
+  Keep this rule strict to avoid false positives on arbitrary argument forms.
+rule:
+  pattern: new Program($IDL, PROGRAM_ID, $PROVIDER)
+fix: new Program($IDL, $PROVIDER)
+
+---
+
+id: anchor-ts-auto-accounts-system-program
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: Standard system accounts are now auto-resolved. Remove them from `.accounts()`."
+note: |
+  In Anchor 0.30, systemProgram, clock, rent, and tokenProgram are
+  auto-resolved by the framework. Remove these from explicit `.accounts()` calls.
+rule:
+  any:
+    - pattern: '$_.accounts({systemProgram: $_})'
+    - pattern: '$_.accounts({systemProgram: $_, $$$AFTER})'
+    - pattern: '$_.accounts({$$$BEFORE, systemProgram: $_})'
+    - pattern: '$_.accounts({$$$BEFORE, systemProgram: $_, $$$AFTER})'
+
+---
+
+id: anchor-ts-auto-accounts-clock
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: Standard system accounts are now auto-resolved. Remove them from `.accounts()`."
+note: |
+  In Anchor 0.30, systemProgram, clock, rent, and tokenProgram are
+  auto-resolved by the framework. Remove these from explicit `.accounts()` calls.
+rule:
+  any:
+    - pattern: '$_.accounts({clock: $_})'
+    - pattern: '$_.accounts({clock: $_, $$$AFTER})'
+    - pattern: '$_.accounts({$$$BEFORE, clock: $_})'
+    - pattern: '$_.accounts({$$$BEFORE, clock: $_, $$$AFTER})'
+
+---
+
+id: anchor-ts-auto-accounts-rent
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: Standard system accounts are now auto-resolved. Remove them from `.accounts()`."
+note: |
+  In Anchor 0.30, systemProgram, clock, rent, and tokenProgram are
+  auto-resolved by the framework. Remove these from explicit `.accounts()` calls.
+rule:
+  any:
+    - pattern: '$_.accounts({rent: $_})'
+    - pattern: '$_.accounts({rent: $_, $$$AFTER})'
+    - pattern: '$_.accounts({$$$BEFORE, rent: $_})'
+    - pattern: '$_.accounts({$$$BEFORE, rent: $_, $$$AFTER})'
+
+---
+
+id: anchor-ts-auto-accounts-token-program
+language: TypeScript
+severity: warning
+message: "Anchor 0.30: Standard system accounts are now auto-resolved. Remove them from `.accounts()`."
+note: |
+  In Anchor 0.30, systemProgram, clock, rent, and tokenProgram are
+  auto-resolved by the framework. Remove these from explicit `.accounts()` calls.
+rule:
+  any:
+    - pattern: '$_.accounts({tokenProgram: $_})'
+    - pattern: '$_.accounts({tokenProgram: $_, $$$AFTER})'
+    - pattern: '$_.accounts({$$$BEFORE, tokenProgram: $_})'
+    - pattern: '$_.accounts({$$$BEFORE, tokenProgram: $_, $$$AFTER})'

@@ -1,0 +1,12 @@
+# Local / IDE — do not publish
+.claude/
+.cursor/
+CLAUDE.md
+需求文档.md
+REAL_WORLD_VALIDATION_TEMPLATE.md
+
+# Solana / Rust build artifacts (if cloned inside a program tree)
+target/
+
+# OS
+.DS_Store

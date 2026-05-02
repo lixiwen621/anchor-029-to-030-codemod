@@ -1,0 +1,107 @@
+version: "1"
+
+# Shell steps run with host cwd (often the editor workspace), not `-t`. Use the same path for
+# `codemod workflow run -t` and `--param target=...` so Cargo / cargo fmt run in the Anchor repo.
+params:
+  schema:
+    target:
+      name: "Repository root"
+      type: string
+      default: "."
+      description: "Absolute path to the Anchor project root (match `codemod workflow run -t`)."
+
+nodes:
+  - id: anchor-migration
+    name: "Anchor v0.29 → v0.30 Migration"
+    type: automatic
+    steps:
+      # Step 1: YAML ast-grep rules (Rust + TypeScript) — deterministic, zero FP
+      # Codemod `ast-grep.config_file` must be rule YAML (top-level `id`), not `sgconfig.yml` (`ruleDirs`).
+      - name: "Apply ast-grep rules (Rust: bumps)"
+        ast-grep:
+          config_file: "rules/anchor-bumps-option-type.yml"
+          include:
+            - "**/*.rs"
+      - name: "Apply ast-grep rules (Rust: IDL import / markers)"
+        ast-grep:
+          config_file: "rules/anchor-idl-import-path.yml"
+          include:
+            - "**/*.rs"
+      - name: "Apply ast-grep rules (Rust: CLOSED_ACCOUNT_DISCRIMINATOR marker)"
+        ast-grep:
+          config_file: "rules/anchor-remove-closed-account-discriminator.yml"
+          include:
+            - "**/*.rs"
+      - name: "Apply ast-grep rules (Rust: shared_memory marker)"
+        ast-grep:
+          config_file: "rules/anchor-remove-shared-memory.yml"
+          include:
+            - "**/*.rs"
+      - name: "Apply ast-grep rules (TypeScript)"
+        ast-grep:
+          config_file: "rules/anchor-ts-provider-init.yml"
+          include:
+            - "**/*.ts"
+            - "**/*.js"
+
+      # Step 2: Cargo.toml dependency + feature migration
+      - name: "Migrate Cargo.toml"
+        run: |
+          set -euo pipefail
+          PKG="${CODEMOD_PATH:?missing CODEMOD_PATH}"
+          ROOT="${{ params.target }}"
+          cd "$ROOT"
+          exec bash "$PKG/migrate-cargo.sh" --with-idl-build
+
+      # Step 3: AI handles edge cases that rules can't cover deterministically
+      - name: "AI fix remaining edge cases"
+        ai:
+          prompt: |
+            You are an expert Solana Anchor developer helping to migrate a project from Anchor v0.29 to v0.30.
+
+            The automated steps have already handled:
+            - `ctx.bumps.get("x").unwrap()` → `.copied()`
+            - Cargo.toml version bumps, feature flag changes, and overflow-checks
+            - TypeScript Provider opts removal and Program programId removal
+            - Marked `anchor_spl::shared_memory` imports for removal
+            - Marked `anchor_syn::idl` imports for review
+            - Marked `CLOSED_ACCOUNT_DISCRIMINATOR` usage for review
+
+            Now please review the codebase for these remaining patterns and fix them:
+
+            1. **shared_memory usage**: Remove import lines marked with the shared_memory TODO comment. Also search for any other references to `shared_memory` and remove or replace them.
+
+            2. **CLOSED_ACCOUNT_DISCRIMINATOR**: Search for any code that reads or compares this constant. Remove those references. The entire const declaration using this discriminator should be removed.
+
+            3. **anchor_syn::idl imports**: Change `anchor_syn::idl` to `anchor_lang_idl` in any remaining import statements. The crate was renamed from `anchor-idl` to `anchor-lang-idl` in PR #2908. In Rust code, use `anchor_lang_idl`. Also check `anchor-syn` Cargo.toml features: `idl-parse` and `seeds` were removed from anchor-syn in PR #2824 — remove these features if present.
+
+            4. **build-bpf → build-sbf**: If there are scripts, Makefiles, or documentation referencing `build-bpf`, update them to `build-sbf`.
+
+            5. **Seeds feature**: The `seeds` feature was renamed to `resolution` and enabled by default. Remove any `seeds` references from Cargo.toml features.
+
+            6. **Optional account bump types**: If account structs have `pub bump: u8` fields for optional accounts, change them to `pub bump: Option<u8>`. In 0.30, unspecified optional accounts use `None` instead of `u8::MAX`.
+
+            7. **IDL enums #[non_exhaustive]**: If code does exhaustive pattern matching on IDL enums, add a `_` wildcard branch.
+
+            8. **TypeScript camelCase**: Program methods now use camelCase consistently. Convert any snake_case method names.
+
+            9. **TypeScript discriminator functions**: Remove usage of `.discriminator` on accounts/instructions — these were removed.
+
+            10. **TypeScript associated methods**: Remove usage of `.associated()` and `.associatedAddress()` — these were removed.
+
+            11. **TypeScript anchor-deprecated-state**: If package.json has `@coral-xyz/anchor` with `anchor-deprecated-state` feature, remove it.
+
+            12. **IDL JSON v0 → v1**: If there are IDL JSON files in `target/idl/` or `target/types/`, they need schema migration. Flag for manual review.
+
+            Constraints:
+            - Keep formatting intact (cargo fmt will run after).
+            - If unsure about a transformation, add a TODO comment instead of guessing.
+            - For each fix, add a comment explaining what changed.
+
+      # Step 4: Format Rust code after all modifications
+      - name: "Format Rust code"
+        run: |
+          set -euo pipefail
+          ROOT="${{ params.target }}"
+          cd "$ROOT"
+          cargo fmt --all 2>/dev/null || true

@@ -1,0 +1,23 @@
+# Codemod Registry package metadata
+# https://docs.codemod.com/docs/codemod-yaml
+schema_version: "1.0"
+name: anchor-029-to-030
+display_name: "Anchor v0.29 → v0.30 Migration"
+version: 1.0.0
+description: "Automate 80%+ of the Anchor 0.29 → 0.30 migration for Solana Rust programs. Updates Cargo.toml dependencies, fixes Rust API breaking changes, and migrates TypeScript client code."
+author: "lixiwen"
+repository: "https://github.com/lixiwen621/anchor-029-to-030-codemod.git"
+tags:
+  - anchor
+  - solana
+  - rust
+  - typescript
+  - migration
+  - 0.29
+  - 0.30
+
+# Category for registry browsing
+category: migration
+
+# Minimum Codemod CLI version required
+min_codemod_version: "0.1.0"

@@ -1,0 +1,11 @@
+id: anchor-remove-shared-memory
+language: Rust
+severity: warning
+message: "Anchor 0.30: `anchor_spl::shared_memory` program has been removed entirely. Remove this import and any related code manually."
+note: |
+  The shared-memory SPL program was removed in Anchor 0.30.
+  Remove any imports or references to `anchor_spl::shared_memory`.
+rule:
+  kind: use_declaration
+  regex: "anchor_spl::shared_memory"
+fix: "// TODO: remove this import - shared_memory program removed in Anchor 0.30"

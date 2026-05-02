@@ -1,0 +1,11 @@
+id: anchor-bumps-option-type
+language: Rust
+severity: warning
+message: "Anchor 0.30: `ctx.bumps.get()` returns `Option<u8>` instead of `u8`. Use `.copied()` instead of `.unwrap()`."
+note: |
+  In Anchor 0.29, `ctx.bumps.get("name")` returned `u8`.
+  In Anchor 0.30, it returns `Option<u8>`.
+  Change `.unwrap()` to `.copied()`.
+rule:
+  pattern: $CTX.bumps.get($NAME).unwrap()
+fix: $CTX.bumps.get($NAME).copied()

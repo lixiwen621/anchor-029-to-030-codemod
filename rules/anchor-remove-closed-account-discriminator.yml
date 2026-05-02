@@ -1,0 +1,11 @@
+id: anchor-remove-closed-account-discriminator
+language: Rust
+severity: warning
+message: "Anchor 0.30: `CLOSED_ACCOUNT_DISCRIMINATOR` has been removed. Remove the entire const declaration manually."
+note: |
+  In Anchor 0.30, the CLOSED_ACCOUNT_DISCRIMINATOR constant was removed
+  from anchor_lang. Account closing is handled internally by the framework.
+  Remove the entire const declaration (e.g. `const ... = anchor_lang::CLOSED_ACCOUNT_DISCRIMINATOR;`)
+  and any code using it.
+rule:
+  pattern: "CLOSED_ACCOUNT_DISCRIMINATOR"

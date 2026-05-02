@@ -1,0 +1,41 @@
+id: anchor-idl-import-path-types-wildcard
+language: Rust
+severity: warning
+message: "Anchor 0.30: IDL types moved from `anchor_syn::idl` to `anchor_lang_idl`."
+note: |
+  In Anchor 0.30, IDL types were moved from the anchor-syn crate
+  to a new anchor-lang-idl crate.
+  Update: `use anchor_syn::idl::types::*;` → `use anchor_lang_idl::types::*;`
+rule:
+  kind: use_declaration
+  pattern: "use anchor_syn::idl::types::*;"
+fix: "use anchor_lang_idl::types::*;"
+
+---
+
+id: anchor-idl-import-path-types-idl-account
+language: Rust
+severity: warning
+message: "Anchor 0.30: IDL types moved from `anchor_syn::idl` to `anchor_lang_idl`."
+note: |
+  In Anchor 0.30, IDL types were moved from the anchor-syn crate
+  to a new anchor-lang-idl crate.
+  Update: `use anchor_syn::idl::types::IdlAccount;` → `use anchor_lang_idl::types::IdlAccount;`
+rule:
+  kind: use_declaration
+  pattern: "use anchor_syn::idl::types::IdlAccount;"
+fix: "use anchor_lang_idl::types::IdlAccount;"
+
+---
+
+id: anchor-idl-import-path-other
+language: Rust
+severity: warning
+message: "Anchor 0.30: IDL types moved from `anchor_syn::idl` to `anchor_lang_idl`."
+note: |
+  In Anchor 0.30, IDL types were moved from the anchor-syn crate
+  to a new anchor-lang-idl crate.
+  Update any remaining `anchor_syn::idl` imports to `anchor_lang_idl`.
+rule:
+  kind: use_declaration
+  regex: "anchor_syn::idl::"
