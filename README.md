@@ -3,8 +3,6 @@
 Automated migration tool for upgrading Solana Anchor projects from v0.29 to v0.30.
 Built with [ast-grep](https://ast-grep.github.io/) (sg/jssg engine) + Codemod workflow.
 
-Submitted to the [Boring AI Hackathon](https://dorahacks.io/hackathon/boring-ai/detail) on DoraHacks.
-
 ## Quick Start
 
 ```bash
@@ -214,21 +212,6 @@ Notes:
 - **YAML `ast-grep` steps** expect `config_file` to point at **rule YAML** (each rule has a top-level `id`). That is what lives under `rules/`. Do not point `config_file` at `sgconfig.yml` (that file uses `ruleDirs` and will fail Codemod parsing with `missing field id`).
 - **Shell steps** (`migrate-cargo.sh`, `cargo fmt`) run with the host working directory, not `-t`. Pass the same Anchor repo path for `-t` and `--param target=...` so Cargo steps execute inside the project being migrated.
 - **Non-interactive reproducibility**: include `--no-interactive` for CI/reviewer runs to avoid TTY prompts; `--allow-dirty --allow-fs --allow-child-process` keeps permissions explicit and repeatable.
-
-## Hackathon
-
-- **Category**: Production-grade Migration Recipes (XL tier)
-- **Pre-approved**: Anchor v0.29 → v0.30 Rust API changes — Changelog
-- **Coverage**: 22/22 Anchor 0.30.0 breaking bullets mapped (see tables; buckets overlap—e.g. Cargo + TS touch the same changelog entry—so rows do not sum to 22)
-- **False-positive policy**: deterministic rules are intentionally narrow; zero-FP target applies to deterministic transforms (AI/manual layer handles ambiguous cases)
-- **Primary evaluation set**: 2 business repositories with `dry-run/apply/build` all PASS
-
-### Evaluator Notes
-
-- Deterministic transforms are intentionally conservative to minimize false positives on real repositories.
-- Ambiguous or project-specific migration cases are explicitly delegated to the AI/manual layer instead of risky auto-rewrites.
-- Workflow execution is reproducible on real open-source repos with documented dry-run/apply/build evidence.
-- Safety-first defaults are provided for scripts, while workflow mode enables stronger breaking-change coverage when required.
 
 ## License
 
