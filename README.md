@@ -200,37 +200,37 @@ For reproducible real-repo evidence recording, use local template: `REAL_WORLD_V
 
 ## Demo recording (`demo-recording.sh`)
 
-脚本按顺序执行：仓库概览 → 列出 `rules/` → 对 fixture 做 `sg scan` → `npx codemod workflow validate` →（可选）对**完整 Anchor 工程**做 `workflow run --dry-run` → `migrate-cargo.sh --help` → 覆盖率摘要。适合本地自检或**无解说录屏**（配合终端字号放大）。
+Scripted walkthrough for judges and contributors: repository overview → list `rules/` → `sg scan` on fixtures → `npx codemod workflow validate` → (optional) `workflow run --dry-run` on a **full Anchor workspace** → `migrate-cargo.sh --help` → coverage summary. Use for local smoke tests or **silent screen recordings** (increase terminal font size for readability).
 
-**环境要求**
+**Requirements**
 
-- `ast-grep`：`export PATH="$HOME/.cargo/bin:$PATH"`（或保证 `sg` 在 PATH 中）
-- Node：`npx codemod` 可用
+- **ast-grep:** ensure `sg` is on `PATH`, e.g. `export PATH="$HOME/.cargo/bin:$PATH"`.
+- **Node:** `npx codemod` must work (Codemod CLI).
 
-**操作步骤**
+**How to run**
 
-1. 进入本仓库根目录：
+1. From this repository root:
    ```bash
    cd /path/to/anchor-029-to-030-codemod
    ```
 
-2. **交互模式**（每步按 Enter 再继续，方便对着镜头操作）：
+2. **Interactive mode** — press Enter between steps (good for recorded demos):
    ```bash
    bash demo-recording.sh
    ```
 
-3. **快速自检**（无停顿）：
+3. **Quick mode** — no pauses (CI / smoke test):
    ```bash
    bash demo-recording.sh --quick
    ```
-   等价于：`DEMO_QUICK=1 bash demo-recording.sh`
+   Same as: `DEMO_QUICK=1 bash demo-recording.sh`
 
-4. **启用 Step 6（workflow dry-run）**：目标必须是含 `Anchor.toml` 的 Anchor 项目根目录；**不要用** `test-fixtures/`（其中没有 `Cargo.toml`，`migrate-cargo.sh` 会失败）。例如官方 quickstart：
+4. **Enable Step 6 (workflow dry-run)** — set `DEMO_ANCHOR_ROOT` to an Anchor **workspace root** that contains `Anchor.toml`. Do **not** use `test-fixtures/` (no `Cargo.toml` there; `migrate-cargo.sh` exits with an error). Example: official [anchor-examples](https://github.com/solana-developers/anchor-examples) `quickstart` after clone:
    ```bash
    export DEMO_ANCHOR_ROOT="/path/to/anchor-examples/quickstart"
    bash demo-recording.sh --quick
    ```
-   提交前可检查：`test -f "$DEMO_ANCHOR_ROOT/Anchor.toml" && echo OK`
+   Verify before running: `test -f "$DEMO_ANCHOR_ROOT/Anchor.toml" && echo OK`
 
 ## Using the Full Workflow
 
