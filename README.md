@@ -119,6 +119,7 @@ anchor-029-to-030-codemod/
 ├── workflow.yaml             # workflow: 多段 YAML ast-grep（rules/*.yml）→ Cargo 脚本 → AI → fmt
 ├── sgconfig.yml              # ast-grep root config: ruleDirs → rules/
 ├── migrate-cargo.sh          # Cargo.toml dependency migration script
+├── demo-recording.sh         # Scripted demo: fixtures, validate, optional workflow dry-run
 ├── CLAUDE.md                 # AI-readable project documentation
 ├── 需求文档.md               # Chinese requirements document
 ├── README.md                 # This file
@@ -196,6 +197,40 @@ For reproducible real-repo evidence recording, use local template: `REAL_WORLD_V
 
 - **Safe mode (default script behavior):** prioritizes lower false-positive risk; does not force `idl-build`.
 - **Coverage mode (workflow default):** `workflow.yaml` runs `migrate-cargo.sh --with-idl-build` to align with Anchor 0.30 breaking requirement around IDL build.
+
+## Demo recording (`demo-recording.sh`)
+
+脚本按顺序执行：仓库概览 → 列出 `rules/` → 对 fixture 做 `sg scan` → `npx codemod workflow validate` →（可选）对**完整 Anchor 工程**做 `workflow run --dry-run` → `migrate-cargo.sh --help` → 覆盖率摘要。适合本地自检或**无解说录屏**（配合终端字号放大）。
+
+**环境要求**
+
+- `ast-grep`：`export PATH="$HOME/.cargo/bin:$PATH"`（或保证 `sg` 在 PATH 中）
+- Node：`npx codemod` 可用
+
+**操作步骤**
+
+1. 进入本仓库根目录：
+   ```bash
+   cd /path/to/anchor-029-to-030-codemod
+   ```
+
+2. **交互模式**（每步按 Enter 再继续，方便对着镜头操作）：
+   ```bash
+   bash demo-recording.sh
+   ```
+
+3. **快速自检**（无停顿）：
+   ```bash
+   bash demo-recording.sh --quick
+   ```
+   等价于：`DEMO_QUICK=1 bash demo-recording.sh`
+
+4. **启用 Step 6（workflow dry-run）**：目标必须是含 `Anchor.toml` 的 Anchor 项目根目录；**不要用** `test-fixtures/`（其中没有 `Cargo.toml`，`migrate-cargo.sh` 会失败）。例如官方 quickstart：
+   ```bash
+   export DEMO_ANCHOR_ROOT="/path/to/anchor-examples/quickstart"
+   bash demo-recording.sh --quick
+   ```
+   提交前可检查：`test -f "$DEMO_ANCHOR_ROOT/Anchor.toml" && echo OK`
 
 ## Using the Full Workflow
 
